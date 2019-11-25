@@ -126,6 +126,7 @@ output	[6:0]	o_seg_bl2		;
 
 input	[41:0]	i_six_digit_seg1	;
 input	[41:0]	i_six_digit_seg2	;
+
 input	[5:0]	i_six_dp		;
 input	[1:0] 	i_mode			;
 input		clk			;
@@ -142,7 +143,7 @@ nco		u_nco_bl1(
 
 nco		u_nco_bl2(
 		.o_gen_clk	( gen_clk_bl2	),
-		.i_nco_num	( 32'd50	),
+		.i_nco_num	( 32'd10000	),
 		.clk		( clk		),
 		.rst_n		( rst_n		));
 
@@ -204,7 +205,7 @@ always @(cnt_common_node_bl) begin
 	endcase
 end
 
-
+reg	[5:0]	o_seg_enb_bl2		;
 always @(blink) begin
 	case (blink)
 		4'd0:	o_seg_enb_bl2 = 6'b111110;
@@ -217,6 +218,7 @@ always @(blink) begin
 	endcase
 end
 
+reg		o_seg_dp_bl2		;
 always @(blink) begin
 	case (blink)
 		4'd0:	o_seg_dp_bl2 = i_six_dp[0];
@@ -230,8 +232,9 @@ always @(blink) begin
 end
 
 reg	[6:0]	o_seg_bl		;
+reg	[6:0]	o_seg_bl2		;
 
-always @(cnt_common_node_bl, blink) begin
+always @(cnt_common_node_bl & blink) begin
 	if(i_mode == 2'd01) begin		//when setup mode start
 		case (cnt_common_node_bl)
 		4'd0:	o_seg_bl = i_six_digit_seg1[6:0];
@@ -244,12 +247,22 @@ always @(cnt_common_node_bl, blink) begin
 		endcase
 		
 		case (blink)
-		4'd0:	o_seg_bl = i_six_digit_seg2[6:0];
-		4'd1:	o_seg_bl = i_six_digit_seg2[13:7];
-		4'd2:	o_seg_bl = i_six_digit_seg2[20:14];
-		4'd3:	o_seg_bl = i_six_digit_seg2[27:21];
-		4'd4:	o_seg_bl = i_six_digit_seg2[34:28];
-		4'd5:	o_seg_bl = i_six_digit_seg2[41:35];
+		4'd0:	o_seg_bl2 = i_six_digit_seg2[6:0];
+		4'd1:	o_seg_bl2 = i_six_digit_seg2[13:7];
+		4'd2:	o_seg_bl2 = i_six_digit_seg2[20:14];
+		4'd3:	o_seg_bl2 = i_six_digit_seg2[27:21];
+		4'd4:	o_seg_bl2 = i_six_digit_seg2[34:28];
+		4'd5:	o_seg_bl2 = i_six_digit_seg2[41:35];
+		default:o_seg_bl2 = 7'b111_1110; // 0 display
+		endcase
+	end else begin
+		case (cnt_common_node_bl)
+		4'd0:	o_seg_bl = i_six_digit_seg1[6:0];
+		4'd1:	o_seg_bl = i_six_digit_seg1[13:7];
+		4'd2:	o_seg_bl = i_six_digit_seg1[20:14];
+		4'd3:	o_seg_bl = i_six_digit_seg1[27:21];
+		4'd4:	o_seg_bl = i_six_digit_seg1[34:28];
+		4'd5:	o_seg_bl = i_six_digit_seg1[41:35];
 		default:o_seg_bl = 7'b111_1110; // 0 display
 		endcase
 	end
