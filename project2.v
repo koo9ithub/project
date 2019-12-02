@@ -1,4 +1,3 @@
-
 //	==================================================
 //	Copyright (c) 2019 Sookmyung Women's University.
 //	--------------------------------------------------
@@ -123,7 +122,7 @@ output	[6:0]	o_seg			;
 
 input	[41:0]	i_six_digit_seg		;
 input	[5:0]	i_six_dp		;
-input	[1:0]	i_mode			;
+input	[2:0]	i_mode			;
 input	[1:0]	i_position		;
 input		clk			;
 input		rst_n			;
@@ -159,20 +158,21 @@ always @(posedge gen_clk or negedge rst_n) begin
 	end
 end
 
-if (i_mode == 2'b01) begin
-
-	reg	  	blink		;
-	always @(posedge blink_clk or negedge rst_n) begin
-		if (rst_n == 1'b0) begin
- 			blink <= 1'd0	;
- 		end else begin
-  			blink <= ~blink	;
-		end
+reg	  	blink		;
+always @(posedge blink_clk or negedge rst_n) begin
+	if (rst_n == 1'b0) begin
+ 		blink <= 1'd0	;
+ 	end else begin
+  		blink <= ~blink	;
 	end
+end
 
-	reg 	[5:0] 	o_seg_enb  	;
-	always @(cnt_common_node) begin
- 		if ( (blink == 2'b0) && (i_position == 2'b00) ) begin 
+reg 	[5:0] 	o_seg_enb  	;
+
+always @(i_mode, i_position, blink, o_seg_enb, cnt_common_node) begin
+
+	if (i_mode == 3'b001) begin
+ 		if ( (blink == 1'b0) && (i_position == 2'b00) ) begin 
  			case (cnt_common_node)
   				4'd0: o_seg_enb = 6'b111110;
   				4'd1: o_seg_enb = 6'b111101;
@@ -182,69 +182,58 @@ if (i_mode == 2'b01) begin
   				4'd5: o_seg_enb = 6'b011111;
   				default:o_seg_enb = 6'b111111;
  			endcase
-		end else begin
- 			if( ( blink == 2'b1) && (i_position == 2'b00) ) begin
-				case (cnt_common_node)
-  					4'd0: o_seg_enb = 6'b111111;
-  					4'd1: o_seg_enb = 6'b111111;
-  					4'd2: o_seg_enb = 6'b111011;
-  					4'd3: o_seg_enb = 6'b110111;
-  					4'd4: o_seg_enb = 6'b101111;
-  					4'd5: o_seg_enb = 6'b011111;
- 				 	default:o_seg_enb = 6'b111111;
- 				endcase
-			end else begin
-		 		if( ( blink == 2'b0) && (i_position == 2'b01) ) begin
-					case (cnt_common_node)
-  						4'd0: o_seg_enb = 6'b111110;
-  						4'd1: o_seg_enb = 6'b111101;
-  						4'd2: o_seg_enb = 6'b111011;
-  						4'd3: o_seg_enb = 6'b110111;
-  						4'd4: o_seg_enb = 6'b101111;
-  						4'd5: o_seg_enb = 6'b011111;
-  						default:o_seg_enb = 6'b111111;
- 					endcase
-				end else begin
-					if( ( blink == 2'b1) && (i_position == 2'b01) ) begin
-						case (cnt_common_node)
-  							4'd0: o_seg_enb = 6'b111110;
-  							4'd1: o_seg_enb = 6'b111101;
-  							4'd2: o_seg_enb = 6'b111111;
-  							4'd3: o_seg_enb = 6'b111111;
-  							4'd4: o_seg_enb = 6'b101111;
-  							4'd5: o_seg_enb = 6'b011111;
-  							default:o_seg_enb = 6'b111111;
- 						endcase
-					end else begin
-						if( ( blink == 2'b0) && (i_position == 2'b10) ) begin
-							case (cnt_common_node)
-  								4'd0: o_seg_enb = 6'b111110;
-  								4'd1: o_seg_enb = 6'b111101;
- 							 	4'd2: o_seg_enb = 6'b111011;
-  								4'd3: o_seg_enb = 6'b110111;
-  								4'd4: o_seg_enb = 6'b101111;
-  								4'd5: o_seg_enb = 6'b011111;
-  								default:o_seg_enb = 6'b111111;
- 							endcase
-						end else begin
-							if( ( blink == 2'b1) && (i_position == 2'b10) ) begin
-								case (cnt_common_node)
-  									4'd0: o_seg_enb = 6'b111110;
-  									4'd1: o_seg_enb = 6'b111101;
-  									4'd2: o_seg_enb = 6'b111011;
-  									4'd3: o_seg_enb = 6'b110111;
-  									4'd4: o_seg_enb = 6'b111111;
-  									4'd5: o_seg_enb = 6'b111111;
-  									default:o_seg_enb = 6'b111111;
- 								endcase
-							end
-						end
-					end
-				end
-			end
+		end else if( ( blink == 1'b1) && (i_position == 2'b00) ) begin
+			case (cnt_common_node)
+  				4'd0: o_seg_enb = 6'b111111;
+  				4'd1: o_seg_enb = 6'b111111;
+  				4'd2: o_seg_enb = 6'b111011;
+  				4'd3: o_seg_enb = 6'b110111;
+  				4'd4: o_seg_enb = 6'b101111;
+  				4'd5: o_seg_enb = 6'b011111;
+ 				default:o_seg_enb = 6'b111111;
+ 			endcase
+		end else if( ( blink == 1'b0) && (i_position == 2'b01) ) begin
+			case (cnt_common_node)
+  				4'd0: o_seg_enb = 6'b111110;
+  				4'd1: o_seg_enb = 6'b111101;
+  				4'd2: o_seg_enb = 6'b111011;
+  				4'd3: o_seg_enb = 6'b110111;
+  				4'd4: o_seg_enb = 6'b101111;
+  				4'd5: o_seg_enb = 6'b011111;
+  				default:o_seg_enb = 6'b111111;
+ 			endcase
+		end else if( ( blink == 1'b1) && (i_position == 2'b01) ) begin
+			case (cnt_common_node)
+  				4'd0: o_seg_enb = 6'b111110;
+  				4'd1: o_seg_enb = 6'b111101;
+  				4'd2: o_seg_enb = 6'b111111;
+  				4'd3: o_seg_enb = 6'b111111;
+  				4'd4: o_seg_enb = 6'b101111;
+  				4'd5: o_seg_enb = 6'b011111;
+  				default:o_seg_enb = 6'b111111;
+ 			endcase
+		end else if( ( blink == 1'b0) && (i_position == 2'b10) ) begin
+			case (cnt_common_node)
+  				4'd0: o_seg_enb = 6'b111110;
+  				4'd1: o_seg_enb = 6'b111101;
+ 				4'd2: o_seg_enb = 6'b111011;
+  				4'd3: o_seg_enb = 6'b110111;
+  				4'd4: o_seg_enb = 6'b101111;
+  				4'd5: o_seg_enb = 6'b011111;
+  				default:o_seg_enb = 6'b111111;
+ 			endcase
+		end else if( ( blink == 1'b1) && (i_position == 2'b10) ) begin
+			case (cnt_common_node)
+  				4'd0: o_seg_enb = 6'b111110;
+  				4'd1: o_seg_enb = 6'b111101;
+  				4'd2: o_seg_enb = 6'b111011;
+  				4'd3: o_seg_enb = 6'b110111;
+  				4'd4: o_seg_enb = 6'b111111;
+  				4'd5: o_seg_enb = 6'b111111;
+  				default:o_seg_enb = 6'b111111;
+ 			endcase
 		end
-	end	
-end else begin
+	end else begin
 		case (cnt_common_node)
   			4'd0: o_seg_enb = 6'b111110;
   			4'd1: o_seg_enb = 6'b111101;
@@ -254,10 +243,8 @@ end else begin
   			4'd5: o_seg_enb = 6'b011111;
   			default:o_seg_enb = 6'b111111;
  		endcase
+	end
 end
-
-
-
 
 reg		o_seg_dp		;
 
@@ -383,7 +370,7 @@ module	controller(
 		clk,
 		rst_n);
 
-output	[1:0]	o_mode			;
+output	[2:0]	o_mode			;
 output	[1:0]	o_position		;
 
 output		o_alarm_en		;
@@ -425,10 +412,11 @@ input		i_sw5			;
 input		clk			;
 input		rst_n			;
 
-parameter	MODE_CLOCK	= 2'b00	;
-parameter	MODE_SETUP	= 2'b01	;
-parameter	MODE_ALARM	= 2'b10	;
-parameter	MODE_TIMER_UP	= 2'b11 ;
+parameter	MODE_CLOCK	= 3'b000;
+parameter	MODE_SETUP	= 3'b001;
+parameter	MODE_ALARM	= 3'b010;
+parameter	MODE_TIMER_UP	= 3'b011;
+parameter	MODE_TIMER_DOWN	= 3'b100;
 
 parameter	POS_SEC		= 2'b00	;
 parameter	POS_MIN		= 2'b01	;
@@ -483,7 +471,7 @@ debounce	u5_debounce(
 		.i_sw		( i_sw5		),
 		.clk		( clk_100hz	));
 
-reg	[1:0]	o_mode			;
+reg	[2:0]	o_mode			;
 always @(posedge sw0 or negedge rst_n) begin
 	if(rst_n == 1'b0) begin
 		o_mode <= MODE_CLOCK;
@@ -769,7 +757,7 @@ output		o_max_hit_hour_timer	;
 
 output		o_alarm		;
 
-input	[1:0]	i_mode		;
+input	[2:0]	i_mode		;
 input	[1:0]	i_position	;
 
 input		i_sec_clk	;
@@ -1095,7 +1083,7 @@ input		i_sw5		;
 input		clk		;
 input		rst_n		;
 
-wire	[1:0]	o_mode		;
+wire	[2:0]	o_mode		;
 wire	[1:0]	o_position	;
 
 wire		o_alarm_w	;
