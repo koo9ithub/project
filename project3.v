@@ -451,6 +451,8 @@ module	controller(
 		i_max_hit_sec_timer,
 		i_max_hit_min_timer,
 		i_max_hit_hour_timer,
+		i_max_hit_sec_timer0,
+		i_max_hit_min_timer0,
 		i_min_hit_sec_timer,
 		i_min_hit_min_timer,
 		i_min_hit_hour_timer,
@@ -503,6 +505,9 @@ input		i_max_hit_hour		;
 input		i_max_hit_sec_timer	;
 input		i_max_hit_min_timer	;
 input		i_max_hit_hour_timer	;
+
+input		i_max_hit_sec_timer0	;
+input		i_max_hit_min_timer0	;
 
 input		i_min_hit_sec_timer	;
 input		i_min_hit_min_timer	;
@@ -813,8 +818,8 @@ always @(*) begin
 					o_timer_down_min_clk = 1'b0;
 					o_timer_down_hour_clk = 1'b0;
 					o_reset_up_sec_clk = clk_1hz;		
-					o_reset_up_min_clk = i_max_hit_sec_timer;
-					o_reset_up_hour_clk = i_max_hit_min_timer;
+					o_reset_up_min_clk = i_max_hit_sec_timer0;
+					o_reset_up_hour_clk = i_max_hit_min_timer0;
 					o_reset_down_sec_clk = 1'b0;		
 					o_reset_down_min_clk = 1'b0;
 					o_reset_down_hour_clk = 1'b0;						
@@ -1056,6 +1061,8 @@ module	hourminsec(
 		o_max_hit_sec_timer,
 		o_max_hit_min_timer,
 		o_max_hit_hour_timer,
+		o_max_hit_sec_timer0,
+		o_max_hit_min_timer0,
 		o_min_hit_sec_timer,
 		o_min_hit_min_timer,
 		o_min_hit_hour_timer,
@@ -1097,6 +1104,9 @@ output		o_max_hit_hour	;
 output		o_max_hit_sec_timer	;
 output		o_max_hit_min_timer	;
 output		o_max_hit_hour_timer	;
+
+output		o_max_hit_sec_timer0	;
+output		o_max_hit_min_timer0	;
 
 output		o_min_hit_sec_timer	;
 output		o_min_hit_min_timer	;
@@ -1211,53 +1221,50 @@ hms_cnt		u_hms_cnt_alarm_hour(
 
 //	MODE_TIMER_UP					
 wire	[5:0]	timer_up_sec	 ;
-wire		max_hit_sec_timer0;
+wire		max_hit_sec_timer;
 hms_cnt		u_hms_cnt_timer_up_sec(
-		.o_hms_cnt	( timer_up_sec0		),
-		.o_max_hit	( o_max_hit_sec_timer0	),
+		.o_hms_cnt	( timer_up_sec		),
+		.o_max_hit	( o_max_hit_sec_timer	),
 		.i_max_cnt	( 6'd59			),
 		.clk		( i_timer_up_sec_clk	),
 		.rst_n		( rst_n			));
 
 wire	[5:0]	timer_up_min	 ;
-wire		max_hit_min_timer0;
+wire		max_hit_min_timer;
 hms_cnt		u_hms_cnt_timer_up_min(
-		.o_hms_cnt	( timer_up_min0		),
-		.o_max_hit	( o_max_hit_min_timer0	),
+		.o_hms_cnt	( timer_up_min		),
+		.o_max_hit	( o_max_hit_min_timer	),
 		.i_max_cnt	( 6'd59			),
 		.clk		( i_timer_up_min_clk	),
 		.rst_n		( rst_n			));
 
 wire	[5:0]	timer_up_hour	  ;
-wire		max_hit_hour_timer0;
+wire		max_hit_hour_timer;
 hms_cnt		u_hms_cnt_timer_up_hour(
-		.o_hms_cnt	( timer_up_hour0	),
-		.o_max_hit	( o_max_hit_hour_timer0  ),
+		.o_hms_cnt	( timer_up_hour		),
+		.o_max_hit	( o_max_hit_hour_timer  ),
 		.i_max_cnt	( 6'd23			),
 		.clk		( i_timer_up_hour_clk	),
 		.rst_n		( rst_n			));
 
 //	RESET_UP
-hms_rcnt	u_hms_cnt_reset_up_sec(
-		.o_hms_cnt	( timer_up_sec		),
-		.o_max_hit	( o_max_hit_sec_timer	),
-		.i_hms_rcnt	( 0			),
+hms_cnt		u_hms_cnt_reset_up_sec(
+		.o_hms_cnt	( timer_up_sec0		),
+		.o_max_hit	( o_max_hit_sec_timer0	),
 		.i_max_cnt	( 6'd59			),
 		.clk		( i_reset_up_sec_clk	),
 		.rst_n		( rst_n			));
 
 hms_rcnt	u_hms_cnt_reset_up_min(
-		.o_hms_cnt	( timer_up_min		),
-		.o_max_hit	( o_max_hit_min_timer	),
-		.i_hms_rcnt	( 0			),
+		.o_hms_cnt	( timer_up_min0		),
+		.o_max_hit	( o_max_hit_min_timer0	),
 		.i_max_cnt	( 6'd59			),
 		.clk		( i_reset_up_min_clk	),
 		.rst_n		( rst_n			));
 
 hms_rcnt	u_hms_cnt_reset_up_hour(
-		.o_hms_cnt	( timer_up_hour		),
-		.o_max_hit	( o_max_hit_hour_timer  ),
-		.i_hms_rcnt	( 0			),
+		.o_hms_cnt	( timer_up_hour0	),
+		.o_max_hit	( o_max_hit_hour_timer0 ),
 		.i_max_cnt	( 6'd23			),
 		.clk		( i_reset_up_hour_clk	),
 		.rst_n		( rst_n			));
@@ -1371,9 +1378,9 @@ always @ (i_mode, i_timer_r, o_sec, o_min, o_hour) begin
 				o_hour	= alarm_hour;
 			end
 			MODE_TIMER_UP:	  begin				
-				o_sec	= 0 ;
-				o_min	= 0 ;
-				o_hour	= 0;
+				o_sec	= timer_up_sec0 ;
+				o_min	= timer_up_min0 ;
+				o_hour	= timer_up_hour0;
 			end
 			MODE_TIMER_DOWN_S:  begin				
 				o_sec	= 0 ;
@@ -1771,6 +1778,8 @@ controller	u_controller( .o_mode		     ( o_mode	   	      ),
 			      .i_max_hit_sec_timer   ( o_max_hit_sec_timer    ),
 			      .i_max_hit_min_timer   ( o_max_hit_min_timer    ),
 			      .i_max_hit_hour_timer  ( o_max_hit_hour_timer   ),
+			      .i_max_hit_sec_timer0   ( o_max_hit_sec_timer0    ),
+			      .i_max_hit_min_timer0   ( o_max_hit_min_timer0    ),
 			      .i_min_hit_sec_timer   ( o_min_hit_sec_timer    ),  				
 			      .i_min_hit_min_timer   ( o_min_hit_min_timer    ),
 			      .i_min_hit_hour_timer  ( o_min_hit_hour_timer   ),
@@ -1792,6 +1801,8 @@ hourminsec	u_hourminsec( .o_sec		     ( o_sec		      ),
 			      .o_max_hit_sec_timer   ( o_max_hit_sec_timer    ),
 			      .o_max_hit_min_timer   ( o_max_hit_min_timer    ),
 			      .o_max_hit_hour_timer  ( o_max_hit_hour_timer   ),
+			      .o_max_hit_sec_timer0   ( o_max_hit_sec_timer0    ),
+			      .o_max_hit_min_timer0   ( o_max_hit_min_timer0    ),
 			      .o_min_hit_sec_timer   ( o_min_hit_sec_timer    ),		
 			      .o_min_hit_min_timer   ( o_min_hit_min_timer    ),
 			      .o_min_hit_hour_timer  ( o_min_hit_hour_timer   ),
